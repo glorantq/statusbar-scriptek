@@ -61,6 +61,9 @@ class ConnmanHandler:
                 continue
         
             formatter = self.format_unknown
+            # ide majd i guess be kell irni wifit meg
+            # bluetootht ha lesz outputom megnezni
+            # az milyen
             match type:
                 case "ethernet":
                     formatter = self.format_ethernet
