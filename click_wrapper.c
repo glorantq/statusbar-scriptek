@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
         
         // szepen leelenorizzuk van-e ehhez a gombhoz tartozo
         // command
-        if(button_id >= 1 && button_id <= argc - 2) {
+        if(button_id >= 1 && button_id < argc - 1) {
             const char* click_command = *(argv + button_id + 1);
 
             // szepen csinalunk egy uj processt mert nem akarjuk
