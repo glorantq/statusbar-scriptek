@@ -1,0 +1,41 @@
+diff --git a/config.h b/config.h
+index 3e07365..70a5844 100644
+--- a/config.h
++++ b/config.h
+@@ -1,16 +1,25 @@
+ #define CMDLENGTH 45
+-#define DELIMITER "  "
++#define DELIMITER " | "
++#define LEADING_DELIMITER "| "
+ #define CLICKABLE_BLOCKS
+ 
++// ezt en adtam hozza
++#define CMDLENGTH 255
++
++#define WRAPPER_NAME "~/.local/scripts/click_wrapper"
++
++// nem csinaltam tobbet mert jelenleg nem kell de ez az elkepzeles
++// ha kell jobb klikkre is valami akkor megegy makro es szepen
++// oda kell adni a wrapper scriptnek
++#define CLICKABLE_BLOCK1(output_command, left_click, update_interval, signal) \
++	BLOCK(WRAPPER_NAME " \"" output_command "\"" " \"" left_click "\"", update_interval, signal)
++
++// idaig
++
+ const Block blocks[] = {
+-	BLOCK("sb-mail",    1800, 17),
+-	BLOCK("sb-music",   0,    18),
+-	BLOCK("sb-disk",    1800, 19),
+-	BLOCK("sb-memory",  10,   20),
+-	BLOCK("sb-loadavg", 5,    21),
+-	BLOCK("sb-mic",     0,    26),
+-	BLOCK("sb-record",  0,    27),
+-	BLOCK("sb-volume",  0,    22),
+-	BLOCK("sb-battery", 5,    23),
+-	BLOCK("sb-date",    1,    24)
++	CLICKABLE_BLOCK1("cat /tmp/block_results/dbus_connman_result", "cmst", 0, 2),
++	CLICKABLE_BLOCK1("cat /tmp/block_results/dbus_upower_result", "st battop", 0, 3),
++	CLICKABLE_BLOCK1("~/.local/scripts/sh_wireplumber.py", "pavucontrol", 1, 1),
++	BLOCK("echo -n '  '; date '+%Y. %m. %d.'", 1, 4),
++	BLOCK("echo -n '  '; date '+%H:%M:%S |'", 1, 5),
+ };
