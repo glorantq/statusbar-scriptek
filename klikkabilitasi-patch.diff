@@ -1,11 +1,12 @@
 diff --git a/config.h b/config.h
-index 3e07365..8ff6417 100644
+index 3e07365..70a5844 100644
 --- a/config.h
 +++ b/config.h
-@@ -1,16 +1,24 @@
+@@ -1,16 +1,25 @@
  #define CMDLENGTH 45
 -#define DELIMITER "  "
 +#define DELIMITER " | "
++#define LEADING_DELIMITER "| "
  #define CLICKABLE_BLOCKS
  
 +// ezt en adtam hozza
