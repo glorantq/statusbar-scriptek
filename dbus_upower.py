@@ -68,7 +68,7 @@ class UpowerHandler:
             self.something_changed()
 
     def device_properties_changed(self, interface_name, changed_properties, invalidated_properties):
-        if "Percentage" in changed_properties or "Percentage" in invalidated_properties:
+        if "Percentage" in changed_properties or "Percentage" in invalidated_properties or "State" in changed_properties or "State" in invalidated_properties:
             self.something_changed()
 
     def format_percentage(self, percentage, charging):
@@ -94,11 +94,7 @@ class UpowerHandler:
         on_battery = self.__device_interface.OnBattery
 
         outputs = []
-
-        # ha nem hyperv a szar
-        # if not on_battery:
-            # self.write_output("{0} AC".format(self.__ac_icon))
-            # return
+        on_battery = True
 
         for device_tuple in self.__watched_devices:
             device = device_tuple[0]
@@ -106,10 +102,15 @@ class UpowerHandler:
             if not (device.Type == 2 and device.PowerSupply):
                 continue
 
-            outputs.append(self.format_percentage(device.Percentage, device.State == 1 or device.State == 5))
-
-        self.write_output(self.__separator.join(outputs))
-
+            outputs.append(self.format_percentage(device.Percentage, device.State == 1))
+            on_battery = on_battery and not (device.State == 5)
+       
+        if on_battery:
+            self.write_output(self.__separator.join(outputs))
+        else:
+            self.write_output("{0} AC".format(self.__ac_icon))
+            return
+    
     def write_output(self, output):
         with open(self.__file_path, "w") as f:
             f.write(output)

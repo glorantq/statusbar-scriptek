@@ -2,7 +2,8 @@
 import os
 
 class ConnmanHandler:
-    __ethernet_icon = ""    
+    __ethernet_icon = ""   
+    __wifi_icon = "" 
     __offline_icon = "睊"
     __separator = " "
 
@@ -46,6 +47,12 @@ class ConnmanHandler:
 
         return "{0}  {1} [{2}]".format(self.__ethernet_icon, name, interface)
 
+    def format_wifi(self, object):
+        name = str(object["Name"] or "Wireless")
+        strength = object["Strength"]
+
+        return "{0}  {1} [{2}%]".format(self.__wifi_icon, name, strength)
+
     def services_changed(self, changed, removed):
         formatted_services = []
 
@@ -67,6 +74,8 @@ class ConnmanHandler:
             match type:
                 case "ethernet":
                     formatter = self.format_ethernet
+                case "wifi":
+                    formatter = self.format_wifi
 
             formatted_services.append(formatter(properties))
 
