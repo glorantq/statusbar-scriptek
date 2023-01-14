@@ -61,6 +61,9 @@ def main():
     if sys.argv[-1] == "mute":
         os.system("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")
 
+    if sys.argv[-1] == "mute-mic":
+        os.system("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle")
+
     os.system("pkill -RTMIN+{0} dwmblocks".format(_signal_id))
 
 if __name__ == "__main__":
