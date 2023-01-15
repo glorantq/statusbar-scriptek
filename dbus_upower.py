@@ -17,8 +17,8 @@ class UpowerHandler:
     __watched_devices = []
 
     __battery_notifications = {
-        range(0,  10):  ("Battery level critical", "The battery is at less than 10%. Charge now.",        "critical", "battery-level-0-symbolic" ),
-        range(10, 20):  ("Battery level low",      "The battery is at less than 20%. Consider charging.", "normal",   "battery-level-10-symbolic"),
+        range(0,  10): ("Battery level critical", "The battery is at less than 10%. Charge now.",        "critical", "battery-level-0-symbolic" ),
+        range(10, 20): ("Battery level low",      "The battery is at less than 20%. Consider charging.", "normal",   "battery-level-10-symbolic"),
         range(20, 30): ("Battery discharging",    "The battery is at less than 30%.",                    "low",      "battery-level-20-symbolic")
     }
 
