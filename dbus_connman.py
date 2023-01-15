@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import os
 
 class ConnmanHandler:
     __ethernet_icon = ""   
@@ -83,9 +82,6 @@ class ConnmanHandler:
             formatted_services.append("{0}  Offline".format(self.__offline_icon))
     
         output = self.__separator.join(formatted_services)
-        with open(self.__file_path, "w") as f:
-            f.write(output)
-	
-        print(output)
-        os.system("pkill -RTMIN+{0} dwmblocks".format(self.__signal_id))
+        
+        self.write_output(output)
    

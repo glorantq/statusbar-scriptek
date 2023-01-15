@@ -1,6 +1,5 @@
 #!/usr/bin/python
-import math
-import os
+from pydbus import Variant
 
 class UpowerHandler:
     __ac_icon = "ﮣ"
@@ -13,13 +12,32 @@ class UpowerHandler:
 
     __system_bus = None
     __device_interface = None
+    __notification_service = None
 
     __watched_devices = []
+
+    __battery_notifications = {
+        range(0,  10):  ("Battery level critical", "The battery is at less than 10%. Charge now.",        "critical", "battery-level-0-symbolic" ),
+        range(10, 20):  ("Battery level low",      "The battery is at less than 20%. Consider charging.", "normal",   "battery-level-10-symbolic"),
+        range(20, 30): ("Battery discharging",    "The battery is at less than 30%.",                    "low",      "battery-level-20-symbolic")
+    }
+
+    __urgency_mapping = {
+        "low": 0,
+        "normal": 1,
+        "critical": 2
+    }
+
+    __last_notified_battery_state = None
 
     # kotelezo interface
 
     def __init__(self, system_bus, session_bus):
         self.__system_bus = system_bus
+
+        notifications = session_bus.get("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+        self.__notification_service = notifications["org.freedesktop.Notifications"]
+
         upower = system_bus.get("org.freedesktop.UPower", "/org/freedesktop/UPower")
 
         properties = upower["org.freedesktop.DBus.Properties"]
@@ -90,6 +108,26 @@ class UpowerHandler:
 
         return "{0}{1}  {2:.0f}%".format(bolt_icon, selected_icon, percentage)
 
+    def handle_percentage(self, percentage):
+        for range in self.__battery_notifications.keys():
+            if percentage in range:
+                if self.__last_notified_battery_state == None or not self.__last_notified_battery_state == range:
+                    self.__last_notified_battery_state = range
+                    battery_notification_components = self.__battery_notifications[range]
+
+                    self.__notification_service.Notify(
+                        self.get_name(), # app_name
+                        0, # replaces_id
+                        battery_notification_components[3], # app_icon
+                        battery_notification_components[0], # summary
+                        battery_notification_components[1], # body
+                        [], # actions
+                        { "urgency": Variant("y", self.__urgency_mapping[battery_notification_components[2]]) }, # hints
+                        -1 # expire_timeout
+                    )
+
+                    break
+
     def something_changed(self):
         on_battery = self.__device_interface.OnBattery
 
@@ -102,17 +140,19 @@ class UpowerHandler:
             if not (device.Type == 2 and device.PowerSupply):
                 continue
 
-            outputs.append(self.format_percentage(device.Percentage, device.State == 1))
+            percentage = device.Percentage
+            is_charging = device.State == 1
+
+            outputs.append(self.format_percentage(percentage, is_charging))
             on_battery = on_battery and not (device.State == 5)
+
+            if not is_charging:
+                self.handle_percentage(percentage)
+            else:
+                self.__last_notified_battery_state = None
        
         if on_battery:
             self.write_output(self.__separator.join(outputs))
         else:
             self.write_output("{0} AC".format(self.__ac_icon))
             return
-    
-    def write_output(self, output):
-        with open(self.__file_path, "w") as f:
-            f.write(output)
-
-        os.system("pkill -RTMIN+{0} dwmblocks".format(self.__signal_id))
